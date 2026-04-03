@@ -9,6 +9,8 @@ os.environ["TEST_DATABASE_URL"] = "sqlite+aiosqlite:///./test.db"
 os.environ["SECRET_KEY"] = "test-secret-key-with-safe-length-1234567890"
 os.environ["BOOTSTRAP_ADMIN_EMAIL"] = "admin@example.com"
 os.environ["BOOTSTRAP_ADMIN_PASSWORD"] = "Admin123!"
+os.environ["DOCS_USERNAME"] = "docs-user"
+os.environ["DOCS_PASSWORD"] = "docs-pass"
 
 from online_cinema.db.base import Base
 from online_cinema.db.init_db import seed_database
