@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from online_cinema.api.docs import register_docs
 from online_cinema.api.router import api_router
 from online_cinema.core.config import get_settings
 from online_cinema.db.init_db import init_database
@@ -25,6 +26,7 @@ def create_application() -> FastAPI:
         lifespan=lifespan,
     )
     app.include_router(api_router, prefix=settings.api_prefix)
+    register_docs(app)
     return app
 
 
