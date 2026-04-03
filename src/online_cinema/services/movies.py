@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from online_cinema.db.models import (
+    CartItem,
     Certification,
     CommentLike,
     Director,
@@ -18,8 +19,10 @@ from online_cinema.db.models import (
     MovieReaction,
     MovieReactionEnum,
     Notification,
+    PurchasedMovie,
     Star,
     User,
+    UserGroupEnum,
 )
 from online_cinema.db.models.movies import movie_genres
 from online_cinema.schemas.auth import MessageResponse
@@ -287,6 +290,50 @@ async def delete_movie(session: AsyncSession, movie_id: int) -> MessageResponse:
     movie = await session.get(Movie, movie_id)
     if movie is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Movie not found.")
+
+    purchased = await session.scalar(
+        select(PurchasedMovie).where(PurchasedMovie.movie_id == movie_id)
+    )
+    if purchased is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Purchased movies cannot be deleted.",
+        )
+
+    cart_entries = list(
+        (await session.scalars(select(CartItem).where(CartItem.movie_id == movie_id))).all()
+    )
+    if cart_entries:
+        moderator_ids = list(
+            (
+                await session.scalars(
+                    select(User.id)
+                    .join(User.group)
+                    .where(User.group.has(name=UserGroupEnum.MODERATOR))
+                )
+            ).all()
+        )
+        admin_ids = list(
+            (
+                await session.scalars(
+                    select(User.id).join(User.group).where(User.group.has(name=UserGroupEnum.ADMIN))
+                )
+            ).all()
+        )
+        for recipient_id in set(moderator_ids + admin_ids):
+            session.add(
+                Notification(
+                    user_id=recipient_id,
+                    message=(
+                        f"Deletion blocked for movie '{movie.name}' because it exists in carts."
+                    ),
+                )
+            )
+        await session.commit()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Movie exists in user carts and cannot be deleted.",
+        )
 
     await session.delete(movie)
     await session.commit()

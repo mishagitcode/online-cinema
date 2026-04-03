@@ -8,6 +8,17 @@ from online_cinema.db.models.auth import (
     UserGroupEnum,
     UserProfile,
 )
+from online_cinema.db.models.commerce import (
+    Cart,
+    CartItem,
+    Order,
+    OrderItem,
+    OrderStatusEnum,
+    Payment,
+    PaymentItem,
+    PaymentStatusEnum,
+    PurchasedMovie,
+)
 from online_cinema.db.models.movies import (
     Certification,
     CommentLike,
@@ -25,6 +36,8 @@ from online_cinema.db.models.movies import (
 
 __all__ = [
     "ActivationToken",
+    "Cart",
+    "CartItem",
     "Certification",
     "CommentLike",
     "Director",
@@ -37,7 +50,14 @@ __all__ = [
     "MovieReaction",
     "MovieReactionEnum",
     "Notification",
+    "Order",
+    "OrderItem",
+    "OrderStatusEnum",
     "PasswordResetToken",
+    "Payment",
+    "PaymentItem",
+    "PaymentStatusEnum",
+    "PurchasedMovie",
     "RefreshToken",
     "Star",
     "User",
