@@ -1,0 +1,2 @@
+"""Online cinema application package."""
+
