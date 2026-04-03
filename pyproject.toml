@@ -51,6 +51,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N", "ASYNC", "RUF"]
+ignore = ["B008"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -62,4 +63,3 @@ disallow_any_generics = true
 no_implicit_optional = true
 strict_equality = true
 exclude = ["tests"]
-
