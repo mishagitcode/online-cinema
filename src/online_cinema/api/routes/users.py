@@ -5,7 +5,9 @@ from online_cinema.api.dependencies.auth import get_current_active_user, require
 from online_cinema.db.models import User, UserGroupEnum
 from online_cinema.db.session import get_db_session
 from online_cinema.schemas.auth import GroupChangeRequest, MessageResponse
+from online_cinema.schemas.movies import NotificationRead
 from online_cinema.schemas.user import UserProfileRead, UserProfileUpdate, UserRead
+from online_cinema.services.movies import list_notifications, mark_notification_read
 from online_cinema.services.users import (
     activate_user_manually,
     change_user_group,
@@ -30,6 +32,23 @@ async def update_profile(
     user: User = Depends(get_current_active_user),
 ) -> UserProfileRead:
     return await update_current_user_profile(session=session, user=user, payload=payload)
+
+
+@router.get("/me/notifications", response_model=list[NotificationRead])
+async def get_notifications(
+    session: AsyncSession = Depends(get_db_session),
+    user: User = Depends(get_current_active_user),
+) -> list[NotificationRead]:
+    return await list_notifications(session, user)
+
+
+@router.post("/me/notifications/{notification_id}/read", response_model=MessageResponse)
+async def read_notification(
+    notification_id: int,
+    session: AsyncSession = Depends(get_db_session),
+    user: User = Depends(get_current_active_user),
+) -> MessageResponse:
+    return await mark_notification_read(session, user, notification_id)
 
 
 @admin_router.get(
